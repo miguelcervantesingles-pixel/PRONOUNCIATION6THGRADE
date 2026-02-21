@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Pokémon English Pronunciation Challenge ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFD700;
+    --darkblue: #1a1a4e;
+    --red: #e63946;
+    --white: #fff;
+    --green: #2ecc71;
+    --orange: #ff6b35;
+    --lightblue: #74c0fc;
+    --purple: #9b59b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--darkblue);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Animated starfield background */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%,100%{opacity:0.2;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.4)}
+  }
+
+  /* Pokeball pattern BG */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(230,57,70,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(116,192,252,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(255,215,0,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+    animation: bgPulse 6s ease-in-out infinite;
+  }
+  @keyframes bgPulse {
+    0%,100%{opacity:0.5} 50%{opacity:1}
+  }
+
+  #app {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  /* Header */
+  .game-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 3vw, 22px);
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 var(--red), 6px 6px 0 rgba(0,0,0,0.4);
+    letter-spacing: 1px;
+    animation: titleFloat 3s ease-in-out infinite;
+  }
+  @keyframes titleFloat {
+    0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)}
+  }
+  .game-subtitle {
+    font-size: 14px;
+    color: var(--lightblue);
+    margin-top: 6px;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(116,192,252,0.6);
+  }
+
+  /* Score bar */
+  .score-bar {
+    display: flex; gap: 20px; align-items: center;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid var(--yellow);
+    border-radius: 15px;
+    padding: 8px 20px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(5px);
+  }
+  .score-item {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--white);
+  }
+  .score-item span { color: var(--yellow); }
+
+  /* BATTLE ARENA */
+  .battle-arena {
+    width: 100%;
+    max-width: 900px;
+    background: linear-gradient(180deg, #0a0a2e 0%, #1a1a5e 50%, #0d3b1a 100%);
+    border: 3px solid var(--yellow);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255,215,0,0.3), inset 0 0 60px rgba(0,0,0,0.5);
+    margin-bottom: 15px;
+  }
+
+  /* Ground */
+  .battle-arena::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(0deg, #0d3b1a, transparent);
+    pointer-events: none;
+  }
+
+  /* Progress track */
+  .track-container {
+    position: relative;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  /* Progress line */
+  .track-line {
+    position: absolute;
+    bottom: 30px; left: 70px; right: 70px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+  }
+  .track-line-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow), var(--orange));
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 10px var(--yellow);
+    width: 0%;
+  }
+
+  /* Step dots on track */
+  .track-dots {
+    position: absolute;
+    bottom: 22px; left: 70px; right: 70px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .track-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: all 0.4s;
+    cursor: default;
+  }
+  .track-dot.done {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+  .track-dot.current {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    box-shadow: 0 0 12px var(--yellow);
+    animation: dotPulse 1s infinite;
+  }
+  @keyframes dotPulse {
+    0%,100%{transform:scale(1)} 50%{transform:scale(1.3)}
+  }
+
+  /* Pokeball */
+  .pokeball-container {
+    position: absolute;
+    bottom: 20px;
+    left: 60px;
+    transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+    cursor: pointer;
+  }
+  .pokeball {
+    width: 60px; height: 60px;
+    position: relative;
+    animation: ballFloat 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));
+  }
+  @keyframes ballFloat {
+    0%,100%{transform:translateY(0) rotate(0deg)} 
+    50%{transform:translateY(-8px) rotate(10deg)}
+  }
+  .pokeball.throwing {
+    animation: ballThrow 0.6s ease-in forwards;
+  }
+  @keyframes ballThrow {
+    0%{transform:translateY(0) rotate(0deg) scale(1)}
+    30%{transform:translateY(-30px) rotate(180deg) scale(1.2)}
+    60%{transform:translateY(-10px) rotate(360deg) scale(0.9)}
+    100%{transform:translateY(0) rotate(720deg) scale(1)}
+  }
+  .pokeball.wrong-shake {
+    animation: wrongShake 0.5s ease;
+  }
+  @keyframes wrongShake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-15px)}
+    40%{transform:translateX(15px)}
+    60%{transform:translateX(-10px)}
+    80%{transform:translateX(10px)}
+  }
+
+  /* Pikachu */
+  .pikachu-container {
+    position: absolute;
+    bottom: 15px;
+    right: 55px;
+    z-index: 5;
+  }
+  .pikachu-emoji {
+    font-size: 56px;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.8));
+    animation: pikachuBob 1.5s ease-in-out infinite;
+    transition: transform 0.3s;
+    display: block;
+  }
+  @keyframes pikachuBob {
+    0%,100%{transform:translateY(0) scaleX(1)} 
+    50%{transform:translateY(-6px) scaleX(1)}
+  }
+  .pikachu-emoji.scared {
+    animation: pikachuScared 0.4s ease-in-out 3;
+  }
+  @keyframes pikachuScared {
+    0%,100%{transform:translateX(0) scaleX(-1)} 
+    50%{transform:translateX(8px) scaleX(-1)}
+  }
+  .pikachu-emoji.captured {
+    animation: pikachuCaptured 1s forwards;
+  }
+  @keyframes pikachuCaptured {
+    0%{transform:scale(1)} 
+    30%{transform:scale(1.3)} 
+    60%{transform:scale(0.5) rotate(20deg)} 
+    100%{transform:scale(0) rotate(360deg); opacity:0}
+  }
+
+  /* Category badges */
+  .category-badge {
+    display: inline-block;
+    background: var(--purple);
+    color: white;
+    font-size: 10px;
+    font-family: 'Press Start 2P', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  }
+
+  /* Word display */
+  .word-card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,215,0,0.4);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  .word-label {
+    font-size: 11px;
+    color: var(--lightblue);
+    font-family: 'Press Start 2P', monospace;
+    margin-bottom: 10px;
+  }
+  .word-display {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(24px, 6vw, 48px);
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 var(--red), 0 0 20px rgba(255,215,0,0.5);
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    animation: wordAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes wordAppear {
+    0%{transform:scale(0) rotate(-10deg); opacity:0}
+    100%{transform:scale(1) rotate(0deg); opacity:1}
+  }
+  .phonetic {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+  }
+  .translation {
+    font-size: 13px;
+    color: var(--lightblue);
+    margin-top: 5px;
+    font-weight: 700;
+  }
+
+  /* Mic button area */
+  .mic-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  .mic-instruction {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Press Start 2P', monospace;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .mic-btn {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle, var(--red) 0%, #8b0000 100%);
+    cursor: pointer;
+    font-size: 36px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 0 #4a0000, 0 0 30px rgba(230,57,70,0.5);
+    transition: all 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .mic-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
+    border-radius: 50% 50% 0 0;
+  }
+  .mic-btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #4a0000, 0 0 40px rgba(230,57,70,0.7); }
+  .mic-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #4a0000; }
+  .mic-btn.recording {
+    background: radial-gradient(circle, #ff4444 0%, var(--red) 100%);
+    animation: recordPulse 0.8s ease-in-out infinite;
+    box-shadow: 0 6px 0 #4a0000, 0 0 50px rgba(255,68,68,0.8);
+  }
+  @keyframes recordPulse {
+    0%,100%{transform:scale(1)} 50%{transform:scale(1.08)}
+  }
+  .mic-btn.processing {
+    background: radial-gradient(circle, var(--yellow) 0%, #aa8800 100%);
+    box-shadow: 0 6px 0 #5a4400, 0 0 30px rgba(255,215,0,0.5);
+  }
+
+  .recording-status {
+    font-size: 11px;
+    font-family: 'Press Start 2P', monospace;
+    color: var(--yellow);
+    min-height: 16px;
+    text-align: center;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* Feedback panel */
+  .feedback-panel {
+    max-width: 900px;
+    width: 100%;
+    border-radius: 16px;
+    padding: 15px 20px;
+    display: none;
+    margin-bottom: 15px;
+    border: 2px solid;
+    backdrop-filter: blur(5px);
+    animation: feedbackSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes feedbackSlide {
+    0%{transform:translateY(20px);opacity:0}
+    100%{transform:translateY(0);opacity:1}
+  }
+  .feedback-panel.success {
+    background: rgba(46,204,113,0.15);
+    border-color: var(--green);
+  }
+  .feedback-panel.error {
+    background: rgba(230,57,70,0.15);
+    border-color: var(--red);
+  }
+  .feedback-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .feedback-panel.success .feedback-title { color: var(--green); }
+  .feedback-panel.error .feedback-title { color: var(--red); }
+  .feedback-text { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; }
+  .tip-list { list-style: none; margin-top: 8px; }
+  .tip-list li { 
+    padding: 4px 0; 
+    padding-left: 20px;
+    position: relative;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+  .tip-list li::before { content: '⚡'; position: absolute; left: 0; }
+
+  /* Heard text */
+  .heard-text {
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--lightblue);
+  }
+
+  /* Buttons */
+  .btn-group {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+  .btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: var(--yellow);
+    color: var(--darkblue);
+    box-shadow: 0 5px 0 #8a6f00;
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 #8a6f00; }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+  }
+
+  /* Particles container */
+  #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particleFall var(--dur, 1s) ease-in forwards;
+  }
+  @keyframes particleFall {
+    0%{transform:translateY(0) rotate(0deg) scale(1); opacity:1}
+    100%{transform:translateY(300px) rotate(720deg) scale(0); opacity:0}
+  }
+
+  /* Lightning effect */
+  .lightning {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+    background: rgba(255,255,150,0.15);
+  }
+  .lightning.flash {
+    animation: lightningFlash 0.5s;
+  }
+  @keyframes lightningFlash {
+    0%{opacity:0} 10%{opacity:1} 20%{opacity:0} 30%{opacity:0.5} 40%{opacity:0} 100%{opacity:0}
+  }
+
+  /* Progress indicator */
+  .progress-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* WIN SCREEN */
+  #winScreen {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 500;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .win-content {
+    background: linear-gradient(135deg, #1a1a4e, #0d3b1a);
+    border: 3px solid var(--yellow);
+    border-radius: 24px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255,215,0,0.5);
+    animation: winPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes winPop {
+    0%{transform:scale(0) rotate(-10deg);opacity:0}
+    100%{transform:scale(1) rotate(0deg);opacity:1}
+  }
+  .win-emoji { font-size: 80px; margin-bottom: 10px; animation: winBounce 0.8s infinite; }
+  @keyframes winBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+  .win-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 var(--red);
+    margin-bottom: 10px;
+  }
+  .win-subtitle { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 20px; }
+  .report-form { display: flex; flex-direction: column; gap: 12px; }
+  .report-input {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--yellow);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    outline: none;
+    text-align: center;
+  }
+  .report-input::placeholder { color: rgba(255,255,255,0.4); }
+  .report-input:focus { border-color: var(--green); box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+
+  /* Report card */
+  .report-card {
+    display: none;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: left;
+  }
+  .report-card.show { display: block; }
+  .report-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--green);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .report-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: rgba(255,255,255,0.8);
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .report-row:last-child { border: none; }
+  .report-row .label { color: var(--yellow); font-weight: 700; }
+
+  /* Audio permission */
+  .audio-prompt {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .audio-prompt-box {
+    background: linear-gradient(135deg, #1a1a4e, #2a0a2a);
+    border: 3px solid var(--yellow);
+    border-radius: 24px;
+    padding: 40px 30px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255,215,0,0.4);
+    animation: winPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .audio-prompt-emoji { font-size: 72px; margin-bottom: 15px; }
+  .audio-prompt-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--yellow);
+    text-shadow: 2px 2px 0 var(--red);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .audio-prompt-text {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  /* Floating pikachu face during win */
+  .confetti-pika {
+    position: fixed;
+    font-size: 24px;
+    animation: confettiPika var(--d,2s) ease-out forwards;
+    pointer-events: none;
+    z-index: 501;
+  }
+  @keyframes confettiPika {
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(-200px) rotate(360deg);opacity:0}
+  }
+
+  /* Responsive */
+  @media(max-width:600px){
+    .battle-arena{padding:15px 10px;}
+    .track-container{height:80px;}
+    .pokeball{width:45px;height:45px;}
+    .pikachu-emoji{font-size:42px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars BG -->
+<div class="stars" id="stars"></div>
+<!-- Lightning overlay -->
+<div class="lightning" id="lightning"></div>
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- Audio permission screen -->
+<div class="audio-prompt" id="audioPrompt">
+  <div class="audio-prompt-box">
+    <div class="audio-prompt-emoji">🎤⚡</div>
+    <div class="audio-prompt-title">ACTIVATE YOUR MICROPHONE!</div>
+    <div class="audio-prompt-text">
+      This game uses your <strong style="color:var(--yellow)">voice</strong> to check your English pronunciation!<br><br>
+      📢 Make sure your <strong>audio is ON</strong><br>
+      🎙️ Allow microphone access when asked<br>
+      🎧 Use headphones for better results<br><br>
+      Ready to catch Pikachu?
+    </div>
+    <button class="btn btn-primary" id="startBtn" style="font-size:12px;padding:16px 30px;">
+      ⚡ LET'S GO! ⚡
+    </button>
+  </div>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="winScreen">
+  <div class="win-content">
+    <div class="win-emoji">🏆</div>
+    <div class="win-title">YOU CAUGHT PIKACHU!</div>
+    <div class="win-subtitle">Amazing pronunciation trainer! Pikachu is now yours! ⚡</div>
+    <div class="report-form" id="reportForm">
+      <div style="font-family:'Press Start 2P',monospace;font-size:10px;color:var(--yellow);">
+        ENTER YOUR NAME FOR YOUR CERTIFICATE:
+      </div>
+      <input type="text" class="report-input" id="studentName" placeholder="Your name here..." maxlength="40"/>
+      <button class="btn btn-primary" id="generateReportBtn" style="font-size:11px;padding:14px;">
+        📋 GET MY REPORT!
+      </button>
+    </div>
+    <div class="report-card" id="reportCard">
+      <div class="report-title">⭐ TRAINER REPORT ⭐</div>
+      <div id="reportContent"></div>
+      <button class="btn btn-secondary" onclick="restartGame()" style="width:100%;margin-top:12px;font-size:9px;padding:12px;">
+        🔄 PLAY AGAIN
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="game-header">
+    <div class="game-title">⚡ POKÉMON PRONUNCIATION ⚡</div>
+    <div class="game-subtitle">🎙️ Speak English to catch Pikachu!</div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item">WORD: <span id="wordNum">1</span>/20</div>
+    <div class="score-item">✅ <span id="correctCount">0</span></div>
+    <div class="score-item">❌ <span id="wrongCount">0</span></div>
+    <div class="score-item">🔥 <span id="streak">0</span> STREAK</div>
+  </div>
+
+  <!-- Battle Arena -->
+  <div class="battle-arena">
+    <div class="track-container">
+      <!-- Track line -->
+      <div class="track-line">
+        <div class="track-line-fill" id="trackFill"></div>
+      </div>
+      <!-- Dots -->
+      <div class="track-dots" id="trackDots"></div>
+      <!-- Pokeball -->
+      <div class="pokeball-container" id="pokeballContainer">
+        <div class="pokeball" id="pokeball">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="48" fill="#f0f0f0" stroke="#222" stroke-width="4"/>
+            <path d="M2 50 Q2 2 50 2 Q98 2 98 50 Z" fill="#e63946"/>
+            <line x1="2" y1="50" x2="98" y2="50" stroke="#222" stroke-width="5"/>
+            <circle cx="50" cy="50" r="14" fill="white" stroke="#222" stroke-width="4"/>
+            <circle cx="50" cy="50" r="7" fill="#ddd" stroke="#222" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <!-- Pikachu -->
+      <div class="pikachu-container">
+        <span class="pikachu-emoji" id="pikachuEmoji">⚡😸⚡</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Word Card -->
+  <div class="word-card">
+    <div class="word-label" id="categoryBadgeText">📦 MATERIALS</div>
+    <div class="word-display" id="wordDisplay">PLASTIC</div>
+    <div class="phonetic" id="phoneticDisplay">/ ˈplæs.tɪk /</div>
+    <div class="translation" id="translationDisplay">🇲🇽 Plástico</div>
+  </div>
+
+  <div class="progress-text" id="progressText">Word 1 of 20 — Click the mic and pronounce the word!</div>
+
+  <!-- Mic section -->
+  <div class="mic-section">
+    <div class="mic-instruction" id="micInstruction">PRESS ONCE TO START 🎙️<br>PRESS AGAIN TO STOP</div>
+    <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+      🎙️
+    </button>
+    <div class="recording-status" id="recordingStatus"></div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="feedback-panel" id="feedbackPanel">
+    <div class="feedback-title" id="feedbackTitle"></div>
+    <div class="feedback-text" id="feedbackText"></div>
+    <div class="heard-text" id="heardText" style="display:none"></div>
+  </div>
+
+  <!-- Next button -->
+  <div class="btn-group" id="btnGroup" style="display:none">
+    <button class="btn btn-primary" id="nextBtn" onclick="nextWord()">NEXT WORD ➡️</button>
+    <button class="btn btn-secondary" onclick="retryWord()">🔄 TRY AGAIN</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  WORD DATA
+// ═══════════════════════════════════════════════
+const words = [
+  { word: 'PLASTIC',   phonetic: '/ ˈplæs.tɪk /',  translation: '🇲🇽 Plástico',   category: '📦 MATERIALS',   tips: ['Say "PLAZ-tick" – the A sounds like in "hat"', 'Two syllables: PLAS – TIC', 'The S sounds like a Z sound: plAZtic'] },
+  { word: 'CLOTH',     phonetic: '/ klɒθ /',         translation: '🇲🇽 Tela / Paño', category: '📦 MATERIALS',   tips: ['Say "KLOTH" – like "cloth" rhymes with "moth"', 'The TH at the end: put your tongue between teeth', 'Do NOT say "clot" – hold the TH!'] },
+  { word: 'GOLD',      phonetic: '/ ɡoʊld /',        translation: '🇲🇽 Oro',         category: '📦 MATERIALS',   tips: ['Say "GOHLD" – long O sound like in "go"', 'One syllable only: GOLD', 'The L is pronounced before the D'] },
+  { word: 'WOOD',      phonetic: '/ wʊd /',           translation: '🇲🇽 Madera',      category: '📦 MATERIALS',   tips: ['Say "WUD" – like "would" (same pronunciation!)', 'The OO is short: like in "book" not "food"', 'One syllable: WOOD'] },
+  { word: 'WOOL',      phonetic: '/ wʊl /',           translation: '🇲🇽 Lana',        category: '📦 MATERIALS',   tips: ['Say "WUL" – same OO as in "book"', 'Do NOT say "WOOL" with long OO like "cool"', 'Rhymes with "pull" and "full"'] },
+  { word: 'PAPER',     phonetic: '/ ˈpeɪ.pər /',     translation: '🇲🇽 Papel',       category: '📦 MATERIALS',   tips: ['Say "PAY-per" – two syllables', 'The A is like "pay" not "papa"', 'The ER at the end is very short and light'] },
+  { word: 'CLAY',      phonetic: '/ kleɪ /',          translation: '🇲🇽 Arcilla',     category: '📦 MATERIALS',   tips: ['Say "KLAY" – rhymes with "play" and "day"', 'The AY sound: open your mouth and say "ay"', 'One syllable: CLAY'] },
+  { word: 'LEATHER',   phonetic: '/ ˈleð.ər /',      translation: '🇲🇽 Cuero/Piel',  category: '📦 MATERIALS',   tips: ['Say "LEH-ther" – the EA sounds like "bed"', 'The TH in the middle is soft, like "the" not "think"', 'Two syllables: LEA – THER'] },
+  { word: 'SWEET',     phonetic: '/ swiːt /',         translation: '🇲🇽 Dulce',       category: '🍭 ADJECTIVES',  tips: ['Say "SWEET" – long EE sound like in "feed"', 'Start with SW together: don\'t say "SUWEET"', 'Rhymes with "meet" and "feet"'] },
+  { word: 'DELICIOUS', phonetic: '/ dɪˈlɪʃ.əs /',   translation: '🇲🇽 Delicioso',   category: '🍭 ADJECTIVES',  tips: ['Say "deh-LI-shus" – stress the middle syllable', 'The TIOUS = SHUS sound', 'Three syllables: de – LI – cious'] },
+  { word: 'HORRIBLE',  phonetic: '/ ˈhɒr.ɪ.bl̩ /',   translation: '🇲🇽 Horrible',    category: '🍭 ADJECTIVES',  tips: ['Say "HOR-rib-ul" – stress the first syllable', 'Three syllables: HOR – ri – ble', 'The E at the end is silent'] },
+  { word: 'SOUR',      phonetic: '/ saʊər /',         translation: '🇲🇽 Agrio/Ácido', category: '🍭 ADJECTIVES',  tips: ['Say "SOW-er" – like a cow says "moo" then add R', 'One syllable: SOUR (not "so-ur")', 'The OU sounds like in "house"'] },
+  { word: 'HARD',      phonetic: '/ hɑːrd /',         translation: '🇲🇽 Duro',        category: '🔬 TEXTURES',    tips: ['Say "HARD" – open your mouth wide for the A', 'The AR sounds like in "car" or "star"', 'One strong syllable: HARD'] },
+  { word: 'SOFT',      phonetic: '/ sɒft /',          translation: '🇲🇽 Suave/Blando', category: '🔬 TEXTURES',   tips: ['Say "SOFT" – the O is short like in "on"', 'Don\'t forget the final T sound', 'One syllable: SOFT'] },
+  { word: 'EXPENSIVE', phonetic: '/ ɪkˈspen.sɪv /', translation: '🇲🇽 Caro/Costoso', category: '🔬 TEXTURES',   tips: ['Say "ek-SPEN-siv" – stress the middle syllable', 'Three syllables: ex – PEN – sive', 'The X sounds like "KS"'] },
+  { word: 'SEE',       phonetic: '/ siː /',            translation: '🇲🇽 Ver',         category: '👁️ SENSES',     tips: ['Say "SEE" – long EE sound like in "bee"', 'Just one syllable, very simple!', 'Don\'t say "si" (Spanish) – stretch the EE longer'] },
+  { word: 'SMELL',     phonetic: '/ smel /',           translation: '🇲🇽 Oler',        category: '👁️ SENSES',     tips: ['Say "SMELL" – the SM blend at the start', 'Practice: S...M...SMELL together', 'The ELL: rhymes with "tell" and "bell"'] },
+  { word: 'TASTE',     phonetic: '/ teɪst /',          translation: '🇲🇽 Probar/Saborear', category: '👁️ SENSES', tips: ['Say "TAYSTE" – the A sounds like in "cake"', 'One syllable: TASTE', 'End with a soft ST sound'] },
+  { word: 'HEAR',      phonetic: '/ hɪər /',           translation: '🇲🇽 Escuchar/Oír', category: '👁️ SENSES',    tips: ['Say "HEER" – like "here" (same pronunciation!)', 'The EAR = EERR sound', 'Don\'t confuse with HAIR (= EHR)'] },
+  { word: 'TOUCH',     phonetic: '/ tʌtʃ /',           translation: '🇲🇽 Tocar',       category: '👁️ SENSES',     tips: ['Say "TUTCH" – the U sounds like in "cup"', 'The CH at the end like in "church"', 'One syllable: TOUCH'] },
+];
+
+// Acceptable variations for speech recognition
+const acceptableVariants = {
+  'PLASTIC': ['plastic','plastics','plastek','plástic'],
+  'CLOTH':   ['cloth','clove','close','clothes'],
+  'GOLD':    ['gold','cold','gol'],
+  'WOOD':    ['wood','would','wud','good'],
+  'WOOL':    ['wool','will','wall','wul'],
+  'PAPER':   ['paper','papers','piper'],
+  'CLAY':    ['clay','play','they','klay'],
+  'LEATHER': ['leather','weather','whether','leathur'],
+  'SWEET':   ['sweet','sweat','suite','sweets'],
+  'DELICIOUS':['delicious','delishus','delish','delicioso'],
+  'HORRIBLE':['horrible','horribl','horrible'],
+  'SOUR':    ['sour','sower','hour'],
+  'HARD':    ['hard','heart','heard'],
+  'SOFT':    ['soft','softs'],
+  'EXPENSIVE':['expensive','expansive','expensive'],
+  'SEE':     ['see','sea','si'],
+  'SMELL':   ['smell','smells','smell'],
+  'TASTE':   ['taste','tastes','tayste'],
+  'HEAR':    ['hear','here','hair','ear'],
+  'TOUCH':   ['touch','touches','hutch','tutch'],
+};
+
+// ═══════════════════════════════════════════════
+//  AUDIO ENGINE (Web Audio API)
+// ═══════════════════════════════════════════════
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, dur, type='sine', vol=0.3) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+
+function playSoundAdvance() {
+  // Ascending happy tones
+  [523,659,784,1047].forEach((f,i) => setTimeout(()=>playTone(f,0.2,'square',0.2),i*80));
+}
+
+function playSoundWrong() {
+  // Low sad buzzer
+  playTone(200,0.4,'sawtooth',0.2);
+  setTimeout(()=>playTone(150,0.5,'sawtooth',0.15),200);
+}
+
+function playSoundCapture() {
+  // Victory fanfare
+  [523,523,523,415,523,659,784].forEach((f,i) => setTimeout(()=>playTone(f,0.25,'square',0.25),i*120));
+  setTimeout(()=>{
+    [784,784,784,659,784].forEach((f,ii) => setTimeout(()=>playTone(f,0.3,'sine',0.2),ii*100));
+  }, 900);
+}
+
+function playSoundRecord() {
+  playTone(800,0.1,'sine',0.15);
+}
+
+// ═══════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════
+let currentIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let streak = 0;
+let attempts = 0;
+let wordAttempts = {}; // per word
+let recognition = null;
+let isRecording = false;
+let gameStarted = false;
+let resultsLog = [];
+
+// ═══════════════════════════════════════════════
+//  STAR FIELD
+// ═══════════════════════════════════════════════
+function createStars() {
+  const cont = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random()*3+1;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;
+    cont.appendChild(s);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  TRACK DOTS
+// ═══════════════════════════════════════════════
+function buildTrackDots() {
+  const cont = document.getElementById('trackDots');
+  cont.innerHTML = '';
+  for(let i=0;i<words.length;i++){
+    const d = document.createElement('div');
+    d.className = 'track-dot' + (i===0?' current':'');
+    d.id = 'dot'+i;
+    cont.appendChild(d);
+  }
+}
+
+function updateTrack() {
+  const total = words.length;
+  const pct = (currentIndex / total) * 100;
+  document.getElementById('trackFill').style.width = pct+'%';
+
+  // Pokeball position: from ~8% to ~88% of arena width
+  const arena = document.querySelector('.battle-arena');
+  const arenaW = arena.offsetWidth;
+  const minX = 20, maxX = arenaW - 90;
+  const newLeft = minX + (pct/100) * (maxX - minX);
+  document.getElementById('pokeballContainer').style.left = newLeft + 'px';
+
+  // Dots
+  for(let i=0;i<total;i++){
+    const d = document.getElementById('dot'+i);
+    if(!d) continue;
+    d.className = 'track-dot' + (i<currentIndex?' done':(i===currentIndex?' current':''));
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════
+function spawnParticles(type) {
+  const cont = document.getElementById('particles');
+  const colors = type==='win' ? ['#FFD700','#ff6b35','#2ecc71','#74c0fc','#e63946'] 
+                              : (type==='success') ? ['#2ecc71','#FFD700','#74c0fc'] 
+                                                    : ['#e63946','#ff8888','#ffaaaa'];
+  for(let i=0;i<(type==='win'?60:20);i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const sz = 6+Math.random()*10;
+    const x = 10+Math.random()*80;
+    const top = type==='win' ? Math.random()*80 : 60+Math.random()*30;
+    p.style.cssText = `width:${sz}px;height:${sz}px;left:${x}%;top:${top}%;background:${colors[Math.floor(Math.random()*colors.length)]};--dur:${0.8+Math.random()*1.5}s;animation-delay:${Math.random()*0.5}s`;
+    cont.appendChild(p);
+    setTimeout(()=>p.remove(), 2500);
+  }
+}
+
+function lightning() {
+  const l = document.getElementById('lightning');
+  l.classList.add('flash');
+  setTimeout(()=>l.classList.remove('flash'),500);
+}
+
+// ═══════════════════════════════════════════════
+//  SPEECH RECOGNITION
+// ═══════════════════════════════════════════════
+let manualStop = false;
+
+function setupRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ 
+    document.getElementById('micInstruction').textContent = '⚠️ Your browser does not support voice recognition. Try Chrome!';
+    return;
+  }
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 5;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('recordingStatus').textContent = '🔴 GRABANDO... ¡HABLA AHORA!';
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micBtn').textContent = '🛑';
+  };
+
+  recognition.onend = () => {
+    // Si NO fue un paro manual, reiniciar automáticamente para mantener el micrófono activo
+    if (isRecording && !manualStop) {
+      try { recognition.start(); } catch(e){}
+      return;
+    }
+    isRecording = false;
+    manualStop = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micBtn').classList.remove('processing');
+    document.getElementById('micBtn').textContent = '🎙️';
+    document.getElementById('recordingStatus').textContent = '';
+  };
+
+  recognition.onerror = (e) => {
+    if(e.error === 'no-speech') return; // ignorar silencio, sigue escuchando
+    isRecording = false;
+    manualStop = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micBtn').textContent = '🎙️';
+    document.getElementById('recordingStatus').textContent = '';
+    let msg = '⚠️ No te escuché. ¡Intenta de nuevo!';
+    if(e.error==='not-allowed') msg = '⚠️ Micrófono bloqueado. ¡Permite el acceso!';
+    showFeedback(false, 'Try Again!', msg, null, null);
+  };
+
+  recognition.onresult = (e) => {
+    // Tomar el último resultado
+    const lastResult = e.results[e.results.length - 1];
+    const results = Array.from(lastResult).map(r=>r.transcript.trim().toLowerCase());
+    document.getElementById('recordingStatus').textContent = '⚙️ Checking pronunciation...';
+    processResult(results);
+  };
+}
+
+function toggleRecording() {
+  if (!gameStarted) return;
+  const btnGroup = document.getElementById('btnGroup');
+  if (btnGroup.style.display !== 'none') return;
+
+  if (isRecording) {
+    // Paro manual
+    manualStop = true;
+    try { if (recognition) recognition.stop(); } catch(e){}
+  } else {
+    manualStop = false;
+    hideFeedback();
+    playSoundRecord();
+    try { if (recognition) recognition.start(); } catch(e){}
+  }
+}
+
+function stopRecordingAfterResult() {
+  // Llamado cuando hay resultado correcto para detener el mic
+  manualStop = true;
+  try { if (recognition) recognition.stop(); } catch(e){}
+}
+
+function startRecording(ev) {}
+function stopRecording() {}
+
+function processResult(results) {
+  const target = words[currentIndex].word.toLowerCase();
+  const variants = (acceptableVariants[words[currentIndex].word]||[]).map(v=>v.toLowerCase());
+  
+  let heard = results[0] || '';
+  let correct = false;
+
+  // Check all alternatives
+  for(const r of results) {
+    const clean = r.replace(/[^a-z\s]/g,'').trim();
+    if(clean === target || variants.includes(clean)) {
+      correct = true; heard = r; break;
+    }
+    // Fuzzy: check if target word appears anywhere in the result
+    if(clean.includes(target) || variants.some(v=>clean.includes(v))) {
+      correct = true; heard = r; break;
+    }
+  }
+
+  // Levenshtein fallback for close matches
+  if(!correct && heard) {
+    const dist = levenshtein(heard.replace(/[^a-z]/g,''), target);
+    if(dist <= 2) correct = true;
+  }
+
+  attempts++;
+  if(!wordAttempts[currentIndex]) wordAttempts[currentIndex] = {tries:0,passed:false};
+  wordAttempts[currentIndex].tries++;
+
+  if(correct) {
+    handleCorrect(heard);
+  } else {
+    handleWrong(heard);
+  }
+}
+
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// ═══════════════════════════════════════════════
+//  CORRECT / WRONG HANDLERS
+// ═══════════════════════════════════════════════
+function handleCorrect(heard) {
+  correctCount++;
+  streak++;
+  if(wordAttempts[currentIndex]) wordAttempts[currentIndex].passed = true;
+
+  stopRecordingAfterResult(); // detener mic automáticamente al acertar
+  playSoundAdvance();
+  spawnParticles('success');
+  lightning();
+
+  document.getElementById('pokeball').classList.add('throwing');
+  document.getElementById('pikachuEmoji').classList.add('scared');
+  setTimeout(()=>{
+    document.getElementById('pokeball').classList.remove('throwing');
+    document.getElementById('pikachuEmoji').classList.remove('scared');
+  },700);
+
+  updateScores();
+
+  let msg = streak >= 3 ? `🔥 ${streak} IN A ROW! AMAZING!` : '⚡ Great pronunciation!';
+  showFeedback(true, '✅ CORRECT!', msg, heard, null);
+  showNextBtn(true);
+
+  resultsLog.push({word: words[currentIndex].word, passed: true, tries: wordAttempts[currentIndex]?.tries||1});
+}
+
+function handleWrong(heard) {
+  wrongCount++;
+  streak = 0;
+
+  playSoundWrong();
+  spawnParticles('fail');
+
+  document.getElementById('pokeball').classList.add('wrong-shake');
+  setTimeout(()=>document.getElementById('pokeball').classList.remove('wrong-shake'),600);
+
+  updateScores();
+
+  const tips = words[currentIndex].tips;
+  const tipHTML = `<ul class="tip-list">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
+  showFeedback(false, '❌ TRY AGAIN!', `I heard: "${heard || '(nothing)'}"<br>Keep practicing! Here are some tips:${tipHTML}`, heard, null);
+  showNextBtn(false);
+
+  resultsLog.push({word: words[currentIndex].word, passed: false, heard: heard, tries: wordAttempts[currentIndex]?.tries||1});
+}
+
+function updateScores() {
+  document.getElementById('wordNum').textContent = currentIndex+1;
+  document.getElementById('correctCount').textContent = correctCount;
+  document.getElementById('wrongCount').textContent = wrongCount;
+  document.getElementById('streak').textContent = streak;
+}
+
+// ═══════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════
+function showFeedback(success, title, text, heard, _) {
+  const p = document.getElementById('feedbackPanel');
+  p.className = 'feedback-panel ' + (success?'success':'error');
+  document.getElementById('feedbackTitle').textContent = title;
+  document.getElementById('feedbackText').innerHTML = text;
+  const ht = document.getElementById('heardText');
+  if(heard && !success) {
+    ht.textContent = `🎤 I heard: "${heard}"`;
+    ht.style.display = 'block';
+  } else {
+    ht.style.display = 'none';
+  }
+  p.style.display = 'block';
+}
+
+function hideFeedback() {
+  document.getElementById('feedbackPanel').style.display = 'none';
+}
+
+function showNextBtn(correct) {
+  const bg = document.getElementById('btnGroup');
+  if(correct) {
+    bg.style.display = 'flex';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  } else {
+    bg.style.display = 'flex';
+    document.getElementById('nextBtn').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function nextWord() {
+  currentIndex++;
+  document.getElementById('btnGroup').style.display = 'none';
+  hideFeedback();
+
+  if(currentIndex >= words.length) {
+    // WIN!
+    setTimeout(winGame, 300);
+    return;
+  }
+
+  loadWord();
+  updateTrack();
+}
+
+function retryWord() {
+  document.getElementById('btnGroup').style.display = 'none';
+  hideFeedback();
+  // Don't reset, just allow re-record
+}
+
+function loadWord() {
+  const w = words[currentIndex];
+  document.getElementById('wordDisplay').textContent = w.word;
+  document.getElementById('phoneticDisplay').textContent = w.phonetic;
+  document.getElementById('translationDisplay').textContent = w.translation;
+  document.getElementById('categoryBadgeText').textContent = w.category;
+  document.getElementById('wordNum').textContent = currentIndex+1;
+  document.getElementById('progressText').textContent = `Word ${currentIndex+1} of ${words.length} — Press the mic and say the word!`;
+  
+  // Re-trigger word animation
+  const wd = document.getElementById('wordDisplay');
+  wd.style.animation = 'none';
+  wd.offsetHeight;
+  wd.style.animation = '';
+}
+
+// ═══════════════════════════════════════════════
+//  WIN
+// ═══════════════════════════════════════════════
+function winGame() {
+  playSoundCapture();
+  lightning();
+  spawnParticles('win');
+
+  // Pikachu gets captured
+  document.getElementById('pikachuEmoji').classList.add('captured');
+
+  // Pokeball bounces
+  document.getElementById('pokeball').classList.add('throwing');
+
+  // Confetti pikachus
+  for(let i=0;i<20;i++){
+    setTimeout(()=>{
+      const p = document.createElement('div');
+      p.className = 'confetti-pika';
+      p.textContent = ['⚡','🌟','💫','✨','🎉','🏆'][Math.floor(Math.random()*6)];
+      p.style.cssText = `left:${Math.random()*90}%;top:${60+Math.random()*30}%;--d:${1.5+Math.random()*1.5}s;animation-delay:${Math.random()*0.5}s`;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),3000);
+    }, i*100);
+  }
+
+  setTimeout(()=>{
+    document.getElementById('winScreen').style.display = 'flex';
+  }, 1200);
+}
+
+function generateReport() {
+  const name = document.getElementById('studentName').value.trim() || 'Student';
+  const total = words.length;
+  const passed = resultsLog.filter(r=>r.passed).length;
+  const pct = Math.round((passed/total)*100);
+  let grade;
+  if(pct>=90) grade='A+ ⭐';
+  else if(pct>=80) grade='B+ 🔥';
+  else if(pct>=70) grade='C+ 👍';
+  else if(pct>=60) grade='D 📚';
+  else grade='F 💪';
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-MX');
+
+  const content = `
+    <div class="report-row"><span class="label">👤 Trainer:</span><span>${name}</span></div>
+    <div class="report-row"><span class="label">📅 Date:</span><span>${dateStr}</span></div>
+    <div class="report-row"><span class="label">✅ Correct:</span><span>${passed}/${total}</span></div>
+    <div class="report-row"><span class="label">❌ Wrong:</span><span>${total-passed}/${total}</span></div>
+    <div class="report-row"><span class="label">📊 Score:</span><span>${pct}%</span></div>
+    <div class="report-row"><span class="label">🏅 Grade:</span><span>${grade}</span></div>
+    <div class="report-row"><span class="label">🔥 Best Streak:</span><span>${streak}</span></div>
+    <div class="report-row" style="flex-direction:column;gap:4px">
+      <span class="label">📝 Words practiced:</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.7)">${words.map(w=>w.word).join(', ')}</span>
+    </div>
+  `;
+
+  document.getElementById('reportContent').innerHTML = content;
+  document.getElementById('reportCard').classList.add('show');
+  document.getElementById('reportForm').style.display = 'none';
+  
+  playSoundCapture();
+  spawnParticles('win');
+}
+
+function restartGame() {
+  currentIndex = 0; correctCount = 0; wrongCount = 0; streak = 0;
+  attempts = 0; wordAttempts = {}; resultsLog = [];
+  document.getElementById('winScreen').style.display = 'none';
+  document.getElementById('reportCard').classList.remove('show');
+  document.getElementById('reportForm').style.display = 'flex';
+  document.getElementById('studentName').value = '';
+  document.getElementById('btnGroup').style.display = 'none';
+  hideFeedback();
+  loadWord(); updateTrack(); updateScores();
+  // Reset pikachu
+  document.getElementById('pikachuEmoji').className = 'pikachu-emoji';
+  document.getElementById('pokeball').className = 'pokeball';
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+function startGame() {
+  document.getElementById('audioPrompt').style.display = 'none';
+  gameStarted = true;
+  try { getAudioCtx().resume(); } catch(e){}
+  setupRecognition();
+  loadWord();
+  buildTrackDots();
+  updateTrack();
+  updateScores();
+}
+
+createStars();
+
+// Wire up buttons safely after DOM is ready
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+</script>
+</body>
+</html>
